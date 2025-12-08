@@ -1,0 +1,34 @@
+# rôle
+Etudiant en 2e année BTS SIO option SLAM
+
+#Objectif
+Construire un cours sur la clause GROUP BY HAVING en SQL
+
+#Contexte
+Public : Etudiant en 2e année BTS SIO option SLAM
+Préparer un examen blanc
+
+#Livrables
+- Un exposé textuel de 2 pages précisant l'objectif de la clause, la syntaxe, des exemples, des erreurs à éviter
+- Un exercice pratique sur une table "Client"
+- Un QCM de 10 questions
+
+# Format
+Texte brut
+
+# Ton
+Français simple et de style amical et encourageant
+
+#Calibrage 
+Mode : Thinking mini
+use reasoning_effort: medium
+Verbosity: medium
+Temperature : 1.0
+Limites : 3 min 
+
+#Préambule
+Reformule l'objectif en 1 phrase.
+
+#Validation
+Total des durée lecture + exercice + QCM :  60 min (±5)
+Ajouter une question bonus à l'exercice pour les étudiants plus avancés

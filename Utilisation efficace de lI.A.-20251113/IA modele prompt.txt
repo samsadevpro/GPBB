@@ -1,0 +1,45 @@
+Modèle prompt GPT
+
+#Rôle : tu es (métier)
+
+
+#Objectif 
+Déterminer...
+Produire...
+Accueillir...
+
+#Contexte
+Un concours de...
+Un jeu...
+Un congrès de...
+
+#Livrables
+Un document : 
+Une liste de...
+Suggérer à la fin 3 propositions de...
+
+# Format
+1 texte de...
+1 présentation powerpoint de...
+1 QCM avec n questions, 3 réponses proposées par question
+
+
+#Préambule, 
+ reformule l'objectif + plan d'action succinct.
+Autoréflexion : logique en 3-5 puces à valider avant d'aller plus loin
+
+#Validation
+- Eviter ...
+- Mettre en avant
+- Si >300 mots, régénère en respectant la limite.
+- Si champs manquants dans les actions, complète avant de rendre
+- Informations personnelles anonymisées
+
+
+#Calibrage,
+use reasoning_effort: low|medium|high
+Verbosity: low|medium|high
+Mode : Fast / Instant | Thinking mini| Thinking | Auto
+Limites : 3 min 
+Eagerness : High|Low
+Temperature : 1.0

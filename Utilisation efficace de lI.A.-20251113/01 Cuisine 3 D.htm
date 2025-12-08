@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuage de Points 3D</title>
+    <!-- Chargement de Tailwind CSS pour le style -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Empêche le défilement de la page */
+        }
+        #scene-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        /* Style pour les étiquettes 3D */
+        .label {
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none; /* Permet de cliquer "à travers" l'étiquette */
+        }
+        /* Style pour les étiquettes des axes */
+        .axis-label {
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Conteneur pour la scène 3D -->
+    <div id="scene-container"></div>
+
+    <!-- Titre et légende superposés -->
+    <div class="absolute top-4 left-4 text-gray-800 p-4 bg-white bg-opacity-80 rounded-lg shadow-md">
+        <h1 class="text-xl font-bold">Espace Latent 3D</h1>
+        <ul class="mt-2 list-disc list-inside text-sm">
+            <li><span class="font-semibold text-red-500">Axe X:</span> Nombre</li>
+            <li><span class="font-semibold text-green-500">Axe Y:</span> Temps</li>
+            <li><span class="font-semibold text-blue-500">Axe Z:</span> Difficulté</li>
+        </ul>
+        <p class="text-xs mt-2 text-gray-600">Utilisez la souris pour pivoter, zoomer et déplacer.</p>
+    </div>
+
+    <!-- Chargement des bibliothèques three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+
+    <script type_x_script="text/javascript">
+        // Vos données, extraites du nouveau fichier CSV
+        const data = [
+            { label: 'radis', x: 1, y: 1, z: 0 },
+            { label: 'pâtes', x: 2, y: 2, z: 0 },
+            { label: 'frites', x: 2, y: 3, z: 2 },
+            { label: 'tiramisu', x: 6, y: 5, z: 5 },
+            { label: 'paella', x: 9, y: 8, z: 8 }, // Donnée mise à jour (Sexe: 1)
+        ];
+
+        // Variables pour la scène, la caméra et le rendu
+        let scene, camera, renderer, labelRenderer, controls;
+        const points = [];
+
+        // Fonction d'initialisation
+        function init() {
+            // 1. Conteneur de la scène
+            const container = document.getElementById('scene-container');
+
+            // 2. Scène
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0); // Fond gris clair
+
+            // 3. Caméra
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(5, 5, 8); // Position initiale de la caméra
+            camera.lookAt(0, 0, 0);
+
+            // 4. Rendu WebGL (pour les objets 3D)
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // 5. Rendu CSS2D (pour les étiquettes HTML)
+            labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0px';
+            labelRenderer.domElement.style.pointerEvents = 'none'; // Important
+            container.appendChild(labelRenderer.domElement);
+
+            // 6. Contrôles de la caméra (OrbitControls)
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; // Effet de lissage
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false;
+            controls.minDistance = 2;
+            controls.maxDistance = 50;
+
+            // 7. Lumière
+            const ambientLight = new THREE.AmbientLight(0x404040, 3); // Lumière ambiante douce
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+
+            // 8. Grille de fond (GridHelper)
+            const gridHelper = new THREE.GridHelper(20, 20, 0xcccccc, 0xcccccc);
+            gridHelper.rotation.x = Math.PI / 2; // Mettre la grille sur le plan XZ (au sol)
+            scene.add(gridHelper);
+
+            // 9. Dessiner les axes
+            drawAxes();
+
+            // 10. Placer les points de données
+            plotData();
+
+            // 11. Gérer le redimensionnement de la fenêtre
+            window.addEventListener('resize', onWindowResize, false);
+
+            // 12. Lancer la boucle d'animation
+            animate();
+        }
+
+        // Fonction pour dessiner les axes
+        function drawAxes() {
+            const axisLength = 10;
+            const origin = new THREE.Vector3(0, 0, 0);
+
+            // Axe X (Pluralité) - Rouge
+            const xDir = new THREE.Vector3(1, 0, 0);
+            const xAxis = new THREE.ArrowHelper(xDir, origin, axisLength, 0xff0000); // 0xff0000 = rouge
+            scene.add(xAxis);
+            createAxisLabel("X: Nombre", axisLength + 0.5, 0, 0, "axis-label");
+
+            // Axe Y (Sexe) - Vert
+            const yDir = new THREE.Vector3(0, 1, 0);
+            const yAxis = new THREE.ArrowHelper(yDir, origin, axisLength, 0x00ff00); // 0x00ff00 = vert
+            scene.add(yAxis);
+            createAxisLabel("Y: Temps", 0, axisLength + 0.5, 0, "axis-label");
+
+            // Axe Z (Animalité) - Bleu
+            const zDir = new THREE.Vector3(0, 0, 1);
+            const zAxis = new THREE.ArrowHelper(zDir, origin, axisLength, 0x0000ff); // 0x0000ff = bleu
+            scene.add(zAxis);
+            createAxisLabel("Z: Difficulté", 0, 0, axisLength + 0.5, "axis-label");
+        }
+
+        // Fonction pour créer les étiquettes des axes
+        function createAxisLabel(text, x, y, z, cssClass) {
+            const div = document.createElement('div');
+            div.className = cssClass;
+            div.textContent = text;
+            
+            const label = new THREE.CSS2DObject(div);
+            label.position.set(x, y, z);
+            scene.add(label);
+        }
+
+        // Fonction pour placer les points et leurs étiquettes
+        function plotData() {
+            const pointGeometry = new THREE.SphereGeometry(0.1, 16, 16); // Petite sphère pour chaque point
+            
+            data.forEach(item => {
+                // Créer le point 3D (Mesh)
+                const pointMaterial = new THREE.MeshStandardMaterial({ color: 0xaa00aa }); // Couleur violette
+                const point = new THREE.Mesh(pointGeometry, pointMaterial);
+                point.position.set(item.x, item.y, item.z);
+                scene.add(point);
+                points.push(point); // Stocker pour l'animation (si nécessaire)
+
+                // Créer l'étiquette 2D (CSS2DObject)
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'label';
+                labelDiv.textContent = item.label;
+                
+                const pointLabel = new THREE.CSS2DObject(labelDiv);
+                pointLabel.position.copy(point.position);
+                pointLabel.translateY(0.15); // Décaler légèrement au-dessus du point
+                scene.add(pointLabel);
+            });
+        }
+
+        // Fonction de redimensionnement de la fenêtre
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Boucle d'animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Mettre à jour les contrôles
+            controls.update();
+
+            // Rendu de la scène 3D
+            renderer.render(scene, camera);
+            
+            // Rendu des étiquettes 2D
+            labelRenderer.render(scene, camera);
+        }
+
+        // Lancer l'application
+        init();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+# rôle
+Eleve en CM2
+
+#Objectif
+Construire un cours sur la clause GROUP BY HAVING en SQL
+
+#Contexte
+Public : Eleve de CM2 déjà initié au SQL
+
+
+#Livrables
+- Un exposé textuel de 1 précisant l'objectif de la clause, la syntaxe, des exemples adaptés à un public d'enfants
+- Un exercice pratique sur une table "Jouet"
+- Un QCM de 10 questions présenté sous forme de devinettes
+
+#Calibrage 
+Mode : Thinking mini
+use reasoning_effort: medium
+Verbosity: medium
+Temperature : 1.0
+Limites : 3 min 
+
+#Préambule
+Reformule l'objectif en 1 phrase.
+
+#Validation
+Total des durée lecture + exercice + QCM :  30 min (±5)
+Ajouter une question bonus à l'exercice pour les étudiants plus avancés

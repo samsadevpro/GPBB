@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Prompt - Breaking Bad Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', 'Arial Bold', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle, rgba(0, 176, 80, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #0d0d0d;
+            border-radius: 0;
+            box-shadow: 
+                0 0 0 3px #00b050,
+                0 0 20px rgba(0, 176, 80, 0.5),
+                inset 0 0 50px rgba(0, 176, 80, 0.1);
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .periodic-header {
+            background: linear-gradient(135deg, #00b050 0%, #008f3f 100%);
+            padding: 10px 20px;
+            border-bottom: 3px solid #000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .element-box {
+            background: #fff;
+            border: 3px solid #000;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .element-number {
+            font-size: 0.7em;
+            color: #00b050;
+        }
+
+        .element-symbol {
+            font-size: 2em;
+            color: #000;
+            line-height: 1;
+        }
+
+        .element-name {
+            font-size: 0.5em;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .header {
+            background: #000;
+            color: #00b050;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 5px solid #00b050;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 176, 80, 0.8);
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            color: #aaa;
+            font-size: 1em;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+            font-style: italic;
+        }
+
+        .warning-strip {
+            background: repeating-linear-gradient(
+                45deg,
+                #ffcc00,
+                #ffcc00 10px,
+                #000 10px,
+                #000 20px
+            );
+            height: 8px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+            position: relative;
+            background: #1a1a1a;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 800px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .form-section::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .form-section::-webkit-scrollbar-track {
+            background: #000;
+            border: 2px solid #00b050;
+        }
+
+        .form-section::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00b050 0%, #008f3f 100%);
+            border: 2px solid #000;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            color: #00b050;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        label::before {
+            content: '⚗️ ';
+        }
+
+        input, textarea, select {
+            padding: 12px;
+            border: 2px solid #00b050;
+            background: #0d0d0d;
+            color: #00b050;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 10px rgba(0, 176, 80, 0.2);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #005030;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #00ff6e;
+            box-shadow: 0 0 20px rgba(0, 255, 110, 0.5);
+            background: #1a1a1a;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            padding-right: 35px;
+            background: #0d0d0d url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path d="M6 9L1 4h10z" fill="%2300b050"/></svg>') no-repeat right 10px center;
+        }
+
+        .calibrage-section {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            padding: 20px;
+            border: 3px solid #00b050;
+            position: relative;
+            box-shadow: 
+                0 0 20px rgba(0, 176, 80, 0.3),
+                inset 0 0 30px rgba(0, 176, 80, 0.1);
+        }
+
+        .calibrage-section::before {
+            content: '⚗️';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00b050;
+            color: #000;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            box-shadow: 0 0 20px rgba(0, 176, 80, 0.8);
+            border: 2px solid #000;
+        }
+
+        .calibrage-section h3 {
+            color: #00b050;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 176, 80, 0.5);
+        }
+
+        .calibrage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .result-section {
+            background: #000;
+            padding: 20px;
+            border: 3px solid #00b050;
+            position: sticky;
+            top: 0;
+            box-shadow: 
+                0 0 20px rgba(0, 176, 80, 0.3),
+                inset 0 0 30px rgba(0, 176, 80, 0.05);
+        }
+
+        .result-section h2 {
+            color: #00b050;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(0, 176, 80, 0.8);
+        }
+
+        .result-section h2::before {
+            content: '📋 ';
+        }
+
+        #promptResult {
+            background: #0d0d0d;
+            padding: 20px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
+            height: 650px;
+            overflow-y: auto;
+            border: 2px solid #00b050;
+            color: #00ff6e;
+            box-shadow: inset 0 0 20px rgba(0, 176, 80, 0.2);
+        }
+
+        #promptResult::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        #promptResult::-webkit-scrollbar-track {
+            background: #000;
+            border: 2px solid #00b050;
+        }
+
+        #promptResult::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00b050 0%, #008f3f 100%);
+            border: 2px solid #000;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: 3px solid #00b050;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 255, 110, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #00b050 0%, #008f3f 100%);
+            color: #000;
+            flex: 1;
+        }
+
+        .btn-copy:hover {
+            background: linear-gradient(135deg, #00ff6e 0%, #00d455 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 176, 80, 0.6);
+        }
+
+        .btn-reset {
+            background: #1a1a1a;
+            color: #00b050;
+            border-color: #00b050;
+        }
+
+        .btn-reset:hover {
+            background: #2d2d2d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 176, 80, 0.3);
+        }
+
+        .chemical-formula {
+            position: absolute;
+            font-size: 8em;
+            color: rgba(0, 176, 80, 0.05);
+            font-weight: bold;
+            pointer-events: none;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        .formula-1 {
+            top: 20%;
+            left: -50px;
+            transform: rotate(-15deg);
+        }
+
+        .formula-2 {
+            bottom: 20%;
+            right: -50px;
+            transform: rotate(15deg);
+        }
+
+        @media (max-width: 968px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-section {
+                position: static;
+            }
+
+            .periodic-header {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .chemical-formula {
+                display: none;
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(0, 176, 80, 0.8); }
+            50% { text-shadow: 0 0 30px rgba(0, 255, 110, 1); }
+        }
+
+        .header h1 {
+            animation: glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="periodic-header">
+            <div class="element-box">
+                <div class="element-number">35</div>
+                <div class="element-symbol">Br</div>
+                <div class="element-name">Bromine</div>
+            </div>
+            <div class="element-box">
+                <div class="element-number">56</div>
+                <div class="element-symbol">Ba</div>
+                <div class="element-name">Barium</div>
+            </div>
+        </div>
+
+        <div class="header">
+            <h1>🧪 Breaking Prompt</h1>
+            <p>Say my name... I'm the one who generates</p>
+        </div>
+
+        <div class="warning-strip"></div>
+
+        <div class="content">
+            <div class="chemical-formula formula-1">C₁₀H₁₅N</div>
+            <div class="chemical-formula formula-2">CH₃</div>
+
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="role">Rôle</label>
+                    <input type="text" id="role" placeholder="Ex: Chemistry Teacher turned Prompt Master">
+                </div>
+
+                <div class="form-group">
+                    <label for="objectif">Objectif (Formula)</label>
+                    <textarea id="objectif" placeholder="Quelle est la formule à créer ?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="contexte">Contexte (Lab Setup)</label>
+                    <textarea id="contexte" placeholder="Décrivez l'environnement du laboratoire..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="livrables">Livrables (Product)</label>
+                    <textarea id="livrables" placeholder="Quel produit final souhaitez-vous obtenir ?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="format">Format (Method)</label>
+                    <textarea id="format" placeholder="Méthode de préparation souhaitée..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="preambule">Préambule (Safety First)</label>
+                    <textarea id="preambule" placeholder="Précautions et instructions préliminaires..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="validation">Validation (Quality Control)</label>
+                    <textarea id="validation" placeholder="Critères de contrôle qualité..."></textarea>
+                </div>
+
+                <div class="calibrage-section">
+                    <h3>⚗️ Chemical Calibration</h3>
+                    <div class="calibrage-grid">
+                        <div class="form-group">
+                            <label for="reasoningEffort">Reasoning Effort</label>
+                            <select id="reasoningEffort">
+                                <option value="">--Choisir--</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="verbosity">Verbosity</label>
+                            <select id="verbosity">
+                                <option value="">--Choisir--</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mode">Mode</label>
+                            <select id="mode">
+                                <option value="">--Choisir--</option>
+                                <option value="fast">Fast / Instant</option>
+                                <option value="thinking-mini">Thinking Mini</option>
+                                <option value="thinking">Thinking</option>
+                                <option value="auto">Auto</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="limites">Limites</label>
+                            <input type="text" id="limites" placeholder="Ex: 3 min">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eagerness">Eagerness</label>
+                            <select id="eagerness">
+                                <option value="">--Choisir--</option>
+                                <option value="low">Low</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="temperature">Temperature</label>
+                            <input type="number" id="temperature" step="0.1" min="0" max="2" placeholder="1.0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <h2>Lab Results</h2>
+                <div id="promptResult">Remplissez les champs pour générer votre formule...</div>
+                <div class="button-group">
+                    <button class="btn-copy" onclick="copyPrompt()">📋 Cook It</button>
+                    <button class="btn-reset" onclick="resetForm()">🔄 New Batch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputs = ['role', 'objectif', 'contexte', 'livrables', 'format', 'preambule', 'validation',
+                       'reasoningEffort', 'verbosity', 'mode', 'limites', 'eagerness', 'temperature'];
+        
+        inputs.forEach(id => {
+            const element = document.getElementById(id);
+            element.addEventListener('input', generatePrompt);
+            element.addEventListener('change', generatePrompt);
+        });
+
+        function generatePrompt() {
+            const role = document.getElementById('role').value.trim();
+            const objectif = document.getElementById('objectif').value.trim();
+            const contexte = document.getElementById('contexte').value.trim();
+            const livrables = document.getElementById('livrables').value.trim();
+            const format = document.getElementById('format').value.trim();
+            const preambule = document.getElementById('preambule').value.trim();
+            const validation = document.getElementById('validation').value.trim();
+            
+            const reasoningEffort = document.getElementById('reasoningEffort').value;
+            const verbosity = document.getElementById('verbosity').value;
+            const mode = document.getElementById('mode').value;
+            const limites = document.getElementById('limites').value.trim();
+            const eagerness = document.getElementById('eagerness').value;
+            const temperature = document.getElementById('temperature').value.trim();
+
+            let prompt = '';
+
+            if (role) prompt += `#Rôle\n${role}\n\n`;
+            if (objectif) prompt += `#Objectif\n${objectif}\n\n`;
+            if (contexte) prompt += `#Contexte\n${contexte}\n\n`;
+            if (livrables) prompt += `#Livrables\n${livrables}\n\n`;
+            if (format) prompt += `#Format\n${format}\n\n`;
+            if (preambule) prompt += `#Préambule\n${preambule}\n\n`;
+            if (validation) prompt += `#Validation\n${validation}\n\n`;
+
+            const hasCalibrageValues = reasoningEffort || verbosity || mode || limites || eagerness || temperature;
+            
+            if (hasCalibrageValues) {
+                prompt += `#Calibrage\n`;
+                if (reasoningEffort) prompt += `Reasoning effort: ${reasoningEffort}\n`;
+                if (verbosity) prompt += `Verbosity: ${verbosity}\n`;
+                if (mode) prompt += `Mode: ${mode}\n`;
+                if (limites) prompt += `Limites: ${limites}\n`;
+                if (eagerness) prompt += `Eagerness: ${eagerness}\n`;
+                if (temperature) prompt += `Temperature: ${temperature}`;
+            }
+
+            document.getElementById('promptResult').textContent = 
+                prompt || 'Remplissez les champs pour générer votre formule...';
+        }
+
+        function copyPrompt() {
+            const promptText = document.getElementById('promptResult').textContent;
+            
+            if (promptText === 'Remplissez les champs pour générer votre formule...') {
+                alert('⚠️ We need to cook!');
+                return;
+            }
+
+            navigator.clipboard.writeText(promptText).then(() => {
+                const btn = document.querySelector('.btn-copy');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Yeah Science!';
+                btn.style.background = 'linear-gradient(135deg, #00ff6e 0%, #00d455 100%)';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'linear-gradient(135deg, #00b050 0%, #008f3f 100%)';
+                }, 2000);
+            });
+        }
+
+        function resetForm() {
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element.tagName === 'SELECT') {
+                    element.selectedIndex = 0;
+                } else {
+                    element.value = '';
+                }
+            });
+            document.getElementById('promptResult').textContent = 
+                'Remplissez les champs pour générer votre formule...';
+        }
+    </script>
+</body>
+</html>

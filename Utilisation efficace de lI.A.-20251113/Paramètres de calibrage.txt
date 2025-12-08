@@ -1,0 +1,35 @@
+
+# Calibrage
+
+Profondeur du raisonnement
+use reasoning_effort: low|medium|high
+
+Longueur et la richesse de la réponse
+Verbosity: low|medium|high
+
+Profondeur et la vitesse de réflexion
+Mode : Fast / Instant | Thinking mini| Thinking | Auto
+
+Elargir le sens de la question :
+Eagerness : High|Low
+
+Temperature : 1.0
+Pris en compte par ChatGPT / Copilot et Gemini
+Sinon le préciser textuellement
+Valeur								
+Basse (ex. 0.1 - 0.5)	
+Effet sur le texte généré
+Très prévisible, conservateur, répétitif, factuel.
+Quand l'utiliser
+Rédaction technique, résumés, réponses précises à des questions factuelles.
+Précision textuelle (Mistral) Demande des réponses factuelles, structurées, ou techniques."
+
+Standard (ex. 0.7 - 1.0)
+Équilibré, créatif mais logique, conserve le flux.
+Conversation générale, articles de blog, écriture standard.
+Formulation : "Utilise des questions ouvertes mais cadrées."
+
+Haute (ex. 1.0 - 2.0)
+Très créatif, inattendu, peut devenir incohérent ou absurde.
+Brainstorming, poésie, fiction très expérimentale.
+Formulation : "Encourage la créativité, les métaphores, ou les interprétations originales."

@@ -1,0 +1,5 @@
+Benoît Sagot, Directeur de recherche à l’INRIA : 
+Initiation à l’apprentissage profond, au cœur de l’IA moderne.
+https://www.youtube.com/watch?v=a5roUKYPVuc
+
+Commencer à 13 minutes 12 pour avoir l'exemple de LLM

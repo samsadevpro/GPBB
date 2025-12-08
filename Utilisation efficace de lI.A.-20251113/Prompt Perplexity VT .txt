@@ -1,0 +1,20 @@
+#Rôle
+Etudiant en BTS SIO option SLAM
+
+#Contexte 
+Examen de fin de 2e année pour l'obtention du diplôme du BTS SIO option SLAM
+
+#Objectif 
+Effectuer une veille technologique sur les évolutions du codage en PHP avec les outils d'IA.
+
+#Livrables
+Un résumé des 10 articles les plus pertinents depuis 1 semaine.
+
+#Calibrage / Format
+Présenter un fichier type powerpoint ou équivalent
+1 slide présente la synthèse en 5 lignes
+1 slide pour chaque article sélectionné, avec résumé en 5 lignes et URL de l'article. 
+
+#Validation / Contraintes
+Traduire en français si les articles sont dans une autre langue.
+Insister sur les risques liés à la cybersécurité.
