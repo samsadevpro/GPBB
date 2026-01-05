@@ -1,6 +1,6 @@
 🧪 Breaking Prompt Generator
 
-Générateur de Prompt — Breaking Bad Edition
+Générateur de Prompt — Breaking Bad 
 
 🎯 Description du projet
 
